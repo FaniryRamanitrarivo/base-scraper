@@ -1,14 +1,13 @@
-FROM python:3.11-slim AS base
+FROM python:3.11-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
+# ---- system deps minimal browsers ----
 RUN apt-get update && apt-get install -y \
     curl \
-    unzip \
-    gnupg \
     ca-certificates \
     fonts-liberation \
     libnss3 \
@@ -26,15 +25,24 @@ RUN apt-get update && apt-get install -y \
     libx11-xcb1 \
     && rm -rf /var/lib/apt/lists/*
 
-COPY pyproject.toml .
+# ---- install deps first (cache Docker) ----
+COPY pyproject.toml ./
+COPY README.md ./  # si présent
 
-RUN pip install --upgrade pip \
-    && pip install .
+RUN pip install --upgrade pip
 
-RUN playwright install chromium
-
+# copier code AVANT install package
 COPY app ./app
 
+# install package + tests deps
+RUN pip install . \
+    && pip install pytest pytest-asyncio pytest-cov
+
+# 👉 seulement si tu utilises Playwright réellement
+# sinon SUPPRIME cette ligne
+# RUN playwright install --with-deps chromium
+
+# ---- security ----
 RUN useradd -m appuser
 USER appuser
 

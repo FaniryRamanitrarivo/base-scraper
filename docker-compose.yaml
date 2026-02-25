@@ -16,6 +16,7 @@ services:
       - PYTHONUNBUFFERED=1
     restart: unless-stopped
 
+
   selenium-chrome:
     image: selenium/standalone-chrome
     container_name: selenium_chrome
@@ -29,6 +30,7 @@ services:
       retries: 10
     restart: unless-stopped
 
+
   selenium-firefox:
     image: selenium/standalone-firefox
     container_name: selenium_firefox
@@ -41,3 +43,11 @@ services:
       timeout: 5s
       retries: 10
     restart: unless-stopped
+
+
+  test:
+    build: .
+    container_name: scraper_tests
+    command: pytest -v
+    volumes:
+      - .:/app

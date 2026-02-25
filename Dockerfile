@@ -27,7 +27,7 @@ RUN apt-get update && apt-get install -y \
 
 # ---- install deps first (cache Docker) ----
 COPY pyproject.toml ./
-COPY README.md ./  # si présent
+COPY README.md ./ 
 
 RUN pip install --upgrade pip
 
@@ -35,8 +35,7 @@ RUN pip install --upgrade pip
 COPY app ./app
 
 # install package + tests deps
-RUN pip install . \
-    && pip install pytest pytest-asyncio pytest-cov
+RUN pip install .[dev]
 
 # 👉 seulement si tu utilises Playwright réellement
 # sinon SUPPRIME cette ligne

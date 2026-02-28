@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from app.application.dto.product_links_payload import ProductLinksScraperPayload
-from app.infrastructure.browsers.browser_pool import BrowserFactory
+from app.infrastructure.browsers.browser_factory import BrowserFactory
 from app.infrastructure.scrapers.generic_scraper import GenericScraper
 from app.application.usecases.scrape_jobs import ScrapeJobsUseCase
 

@@ -14,8 +14,7 @@ async def scrape(payload: ProductLinksScraperPayload):
     
     factory = BrowserFactory()
     browser = await factory.create(
-        payload.engine.browser,
-        payload.engine.headless,
+        payload.engine
     )
 
     logger = LiveLogger(ws_manager)

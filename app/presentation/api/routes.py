@@ -11,7 +11,7 @@ router = APIRouter()
 async def scrape(payload: ScrapeRequest):
 
     factory = BrowserFactory()
-    browser = await factory.create(payload.browser)
+    browser = await factory.create(payload.engine)
 
     scraper = GenericScraper(browser)
     usecase = ScrapeJobsUseCase(scraper)

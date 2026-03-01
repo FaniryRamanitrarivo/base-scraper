@@ -1,4 +1,4 @@
-from fastapi import websocket
+from fastapi import WebSocket
 from typing import List
 import json
 

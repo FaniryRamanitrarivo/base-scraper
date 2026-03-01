@@ -2,47 +2,35 @@ FROM python:3.11-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+# Fixe le dossier des navigateurs pour qu'il soit accessible à tous
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 
 WORKDIR /app
 
-# ---- system deps minimal browsers ----
+# ---- system deps ----
 RUN apt-get update && apt-get install -y \
     curl \
     ca-certificates \
-    fonts-liberation \
-    libnss3 \
-    libatk1.0-0 \
-    libatk-bridge2.0-0 \
-    libcups2 \
-    libxkbcommon0 \
-    libxcomposite1 \
-    libxdamage1 \
-    libxrandr2 \
-    libgbm1 \
-    libasound2 \
-    libpangocairo-1.0-0 \
-    libxshmfence1 \
-    libx11-xcb1 \
     && rm -rf /var/lib/apt/lists/*
 
-# ---- install deps first (cache Docker) ----
-COPY pyproject.toml ./
-COPY README.md ./ 
-
+# ---- install deps (Cache Docker) ----
+COPY pyproject.toml README.md ./ 
 RUN pip install --upgrade pip
 
-# copier code AVANT install package
-COPY app ./app
+# ---- Installation Playwright & Browsers ----
+# On le fait AVANT de changer d'utilisateur, mais dans le dossier partagé
+RUN pip install --no-cache-dir playwright && \
+    playwright install --with-deps chromium && \
+    chmod -R 775 /ms-playwright
 
-# install package + tests deps
+# ---- Copier le code et installer le projet ----
+COPY app ./app
 RUN pip install .[dev]
 
-# 👉 seulement si tu utilises Playwright réellement
-# sinon SUPPRIME cette ligne
-# RUN playwright install --with-deps chromium
-
-# ---- security ----
-RUN useradd -m appuser
+# ---- Security ----
+RUN useradd -m appuser && \
+    chown -R appuser:appuser /app
+    
 USER appuser
 
 EXPOSE 8000

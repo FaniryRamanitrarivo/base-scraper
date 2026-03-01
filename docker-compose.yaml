@@ -5,6 +5,8 @@ services:
     container_name: scraper_api
     ports:
       - "8000:8000"
+    volumes:
+     - .:/app
     depends_on:
       selenium-chrome:
         condition: service_healthy
@@ -46,9 +48,13 @@ services:
   test:
     build: .
     container_name: scraper_tests
-    command: pytest -v
-    depends_on:
-      - selenium-chrome
-      - selenium-firefox
+    command: pytest -v --cov=app --cov-report=term-missing
+    environment:
+      PYTHONUNBUFFERED: "1"
+      PYTHONPATH: "/app"
     volumes:
       - .:/app
+    networks:
+      - scraper_network
+    profiles:
+      - test

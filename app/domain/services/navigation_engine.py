@@ -10,7 +10,7 @@ class NavigationEngine:
             next_urls = []
 
             for url in current_urls:
-                await browser.get(url)
+                await browser.get(str(url))
 
                 links = await extractor.extract(
                     browser,

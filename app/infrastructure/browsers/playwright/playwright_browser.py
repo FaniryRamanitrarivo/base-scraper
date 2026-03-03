@@ -1,6 +1,6 @@
 from playwright.async_api import async_playwright
 from app.domain.interfaces.browser import Browser
-
+from typing import List
 
 class PlaywrightBrowser(Browser):
 
@@ -17,7 +17,7 @@ class PlaywrightBrowser(Browser):
         return cls(browser, page)
 
     async def get(self, url: str):
-        await self.page.goto(url)
+        await self.page.goto(str(url))
 
     async def query_all(self, selector: str) -> List:
         # Retourne une liste d'ElementHandle utilisables par get_attribute et get_text

@@ -1,7 +1,7 @@
 from typing import List, Optional, Literal, Union
 from uuid import UUID
 from pydantic import BaseModel, Field, HttpUrl
-
+from typing import Annotated
 
 # ============================================================
 # 1️⃣ ENGINE CONFIG
@@ -39,7 +39,10 @@ class JSExtractor(BaseExtractor):
     attribute: Optional[str] = None
 
 
-Extractor = Union[SelectorExtractor, JSExtractor]
+Extractor = Annotated[
+    Union[SelectorExtractor, JSExtractor],
+    Field(discriminator="type")
+]
 
 
 # ============================================================
@@ -89,10 +92,13 @@ class InfiniteScrollPagination(BaseModel):
     max_scrolls: int = 5
 
 
-PaginationConfig = Union[
-    IncrementPagination,
-    NextButtonPagination,
-    InfiniteScrollPagination,
+PaginationConfig = Annotated[
+    Union[
+        IncrementPagination,
+        NextButtonPagination,
+        InfiniteScrollPagination,
+    ],
+    Field(discriminator="type")
 ]
 
 

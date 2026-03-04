@@ -47,6 +47,9 @@ class LiveLogger(AppLogger):
             except Exception as e:
                 self.logger.error(f"WebSocket broadcast failed: {e}")
 
+    async def success(self, message: str, data=None):
+        await self._send("success", message, data)
+
     async def info(self, message: str, data=None):
         await self._send("info", message, data)
 

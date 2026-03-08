@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import Mock, AsyncMock
-from app.domain.services.scraper_engine import GenericScraper
+from app.infrastructure.scrapers.generic_scraper import GenericScraper
 
 @pytest.mark.asyncio
 async def test_generic_scraper_orchestration(fake_browser, fake_logger):

@@ -6,7 +6,10 @@ class PaginationEngine:
         urls = []
 
         for i in range(config.start, config.max_pages + 1):
-            url = base_url + config.pattern.replace("<PNum>", str(i))
+
+            page = config.pattern.replace("<PNum>", str(i))
+            url = base_url + page
+
             urls.append(url)
 
         return urls

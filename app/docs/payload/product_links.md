@@ -159,24 +159,24 @@ Toutes les URLs collectées seront liées à ce `run_id`.
 ```json
 {
   "engine": {
-    "browser": "playwright",
+    "browser": "selenium-chrome",
     "headless": true
   },
   "entry_points": [
-    "https://example.com/shop"
+    "https://www.portaljob-madagascar.com/"
   ],
   "navigation_flow": [
     {
       "name": "category",
       "extract_links": {
         "type": "selector",
-        "selector": ".category a",
+        "selector": "section[class~=\"menu\"] ul[class*=\"secter_list\"] a[href*=\"informatique\"]",
         "attribute": "href",
         "multiple": true
       },
       "extract_label": {
         "type": "selector",
-        "selector": ".category a",
+        "selector": "section[class~=\"menu\"] ul[class*=\"secter_list\"] a[href*=\"informatique\"]",
         "attribute": "textContent",
         "multiple": true
       }
@@ -184,7 +184,7 @@ Toutes les URLs collectées seront liées à ce `run_id`.
   ],
   "product_links": {
     "type": "selector",
-    "selector": ".product a",
+    "selector": "article[class*=\"annonce\"] + a",
     "attribute": "href",
     "multiple": true,
     "deduplicate": true,
@@ -192,9 +192,9 @@ Toutes les URLs collectées seront liées à ce `run_id`.
   },
   "pagination": {
     "type": "increment",
-    "pattern": "?page=<PNum>",
+    "pattern": "/page/<PNum>",
     "start": 1,
-    "max_pages": 10
+    "max_pages": 3
   }
 }
 ```

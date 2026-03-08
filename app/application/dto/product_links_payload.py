@@ -1,6 +1,6 @@
 from typing import List, Optional, Literal, Union
 from uuid import UUID
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import BaseModel, Field, AnyUrl, field_validator
 from typing import Annotated
 
 # ============================================================
@@ -11,7 +11,7 @@ class EngineConfig(BaseModel):
     browser: Literal["playwright", "selenium-chrome", "selenium-firefox"]
     headless: bool = True
     timeout: Optional[int] = Field(default=30000, ge=1000)
-    wait_until: Optional[Literal["load", "domcontentloaded", "networkidle"]] = "load"
+    wait_until: Optional[Literal["load", "domcontentloaded", "networkidle"]] = "domcontentloaded"
 
 
 # ============================================================
@@ -139,10 +139,15 @@ class RunMetadata(BaseModel):
 
 class ProductLinksScraperPayload(BaseModel):
     engine: EngineConfig
-    entry_points: List[HttpUrl]
+    entry_points: List[AnyUrl] = Field(..., min_length=1)
     navigation_flow: Optional[List[NavigationStep]] = []
     product_links: ProductLinksConfig
     pagination: Optional[PaginationConfig] = None
     network_interception: Optional[NetworkInterceptionConfig] = None
     normalization: Optional[NormalizationConfig] = None
     run: Optional[RunMetadata] = None
+
+    @field_validator("entry_points", mode="after")
+    @classmethod
+    def normalize_urls(cls, urls):
+        return [str(url) for url in urls]

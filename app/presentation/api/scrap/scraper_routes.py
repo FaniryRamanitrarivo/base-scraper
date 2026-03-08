@@ -1,7 +1,7 @@
 from fastapi import APIRouter, WebSocket
 from app.application.dto.product_links_payload import ProductLinksScraperPayload
 from app.infrastructure.browsers.browser_factory import BrowserFactory
-from app.domain.services.scraper_engine import GenericScraper
+from app.infrastructure.scrapers.generic_scraper import GenericScraper
 from app.application.usecases.run_scraper import RunScraperUseCase
 from app.infrastructure.logging.websocket_manager import WebSocketManager
 from app.infrastructure.logging.live_logger import LiveLogger

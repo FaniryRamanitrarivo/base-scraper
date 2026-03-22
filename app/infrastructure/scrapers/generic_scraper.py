@@ -17,7 +17,6 @@ class GenericScraper:
         self.pipeline = ScraperPipeline(
             [
                 NavigationStage(),
-                PaginationStage(),
                 ExtractionStage(),
                 DedupStage()
             ]

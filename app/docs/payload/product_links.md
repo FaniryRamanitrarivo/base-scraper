@@ -170,13 +170,28 @@ Toutes les URLs collectées seront liées à ce `run_id`.
       "name": "category",
       "extract_links": {
         "type": "selector",
-        "selector": "section[class~=\"menu\"] ul[class*=\"secter_list\"] a[href*=\"informatique\"]",
+        "selector": "header[role='banner'] a[href*='secteur/liste']",
         "attribute": "href",
         "multiple": true
       },
       "extract_label": {
         "type": "selector",
-        "selector": "section[class~=\"menu\"] ul[class*=\"secter_list\"] a[href*=\"informatique\"]",
+        "selector": "header[role='banner'] a:is([href*='secteur=7'], [href*='secteur=6'])",
+        "attribute": "textContent",
+        "multiple": true
+      }
+    },
+    {
+      "name": "sub_category",
+      "extract_links": {
+        "type": "selector",
+        "selector": "main[role='main'] a[href*='informatique']",
+        "attribute": "href",
+        "multiple": true
+      },
+      "extract_label": {
+        "type": "selector",
+        "selector": "main[role='main'] a[href*='informatique']",
         "attribute": "textContent",
         "multiple": true
       }
@@ -184,7 +199,7 @@ Toutes les URLs collectées seront liées à ce `run_id`.
   ],
   "product_links": {
     "type": "selector",
-    "selector": "article[class*=\"annonce\"] + a",
+    "selector": "article[role='listitem'] a[class*='items']",
     "attribute": "href",
     "multiple": true,
     "deduplicate": true,

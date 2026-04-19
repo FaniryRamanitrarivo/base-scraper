@@ -2,7 +2,6 @@ FROM python:3.11-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-# Fixe le dossier des navigateurs pour qu'il soit accessible à tous
 ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 
 WORKDIR /app
@@ -13,26 +12,25 @@ RUN apt-get update && apt-get install -y \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# ---- install deps (Cache Docker) ----
-COPY pyproject.toml README.md ./ 
+# ---- install python deps (cache Docker) ----
+COPY pyproject.toml README.md ./
 RUN pip install --upgrade pip
 
-# ---- Installation Playwright & Browsers ----
-# On le fait AVANT de changer d'utilisateur, mais dans le dossier partagé
+# Installer dépendances en mode editable (SANS code encore)
+RUN pip install -e .[dev]
+
+# ---- Playwright ----
 RUN pip install --no-cache-dir playwright && \
     playwright install --with-deps chromium && \
     chmod -R 775 /ms-playwright
 
-# ---- Copier le code et installer le projet ----
-COPY app ./app
-RUN pip install .[dev]
-
-# ---- Security ----
-RUN useradd -m appuser && \
-    chown -R appuser:appuser /app
-    
+# ---- créer user ----
+RUN useradd -m appuser
 USER appuser
+
+# ---- IMPORTANT : on ne copie PAS le code ici ----
+# 👉 il sera monté via volume
 
 EXPOSE 8000
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

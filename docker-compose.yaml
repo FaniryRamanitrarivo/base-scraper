@@ -1,7 +1,9 @@
 services:
 
   scraper_api:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile
     container_name: scraper_api
     ports:
       - "8000:8000"

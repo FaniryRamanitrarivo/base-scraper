@@ -34,6 +34,7 @@ class NavigationEngine:
                     print(f"Navigation error on {url}: {e}")
 
             current_urls = next_urls
+            await logger.info(f"[current_urls] starting extracting : {current_urls}")
 
         if len(current_urls) > 0:
             await logger.info(f"[{step.name}] : {len(current_urls)} found on the page")

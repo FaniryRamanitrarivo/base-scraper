@@ -29,12 +29,15 @@ class ExtractionStage(ScraperStage):
             if page_url in processed_urls:
                 continue
             
-            await logger.info(f"[ExtractionStage] Scraping: {page_url}")
             
             try:
+                await logger.info(f"Entering page : {page_url}")
+
                 await context.browser.get(page_url)
                 processed_urls.add(page_url)
                 
+                await logger.info(f"Start extraction on the page: {page_url}")
+
                 # Extract links from current page
                 products = await ExtractionEngine.extract(
                     context.browser,
@@ -43,7 +46,7 @@ class ExtractionStage(ScraperStage):
                 )
 
                 if products: 
-                    await logger.info(f"Found {len(products)} links on this page.")
+                    await logger.success(f"Found {len(products)} links on this page.", products)
                     results.extend(products)
                 
                 # 3. Pagination Logic - Check if we should find the NEXT page

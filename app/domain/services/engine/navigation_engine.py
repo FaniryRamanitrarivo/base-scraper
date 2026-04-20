@@ -17,6 +17,9 @@ class NavigationEngine:
             for url in current_urls:
 
                 try:
+
+                    await logger.info(f"Entering page : {url}")
+
                     await browser.get(url)
 
                     links = await extractor.extract(
@@ -24,6 +27,8 @@ class NavigationEngine:
                         step.extract_links,
                         base_url=url
                     )
+
+                    await logger.info(f"Start extraction on the page: {url}")
 
                     for link in links:
                         if link not in visited:
@@ -34,12 +39,10 @@ class NavigationEngine:
                     print(f"Navigation error on {url}: {e}")
 
             current_urls = next_urls
-            await logger.info(f"[current_urls] starting extracting : {current_urls}")
-
-        if len(current_urls) > 0:
-            await logger.info(f"[{step.name}] : {len(current_urls)} found on the page")
-        else:
-            await logger.warning(f"[{step.name}] No links found on the page")
-
+            
+            if len(current_urls) > 0:
+                await logger.success(f"[{step.name}] : {len(current_urls)} elements found on the page", current_urls)
+            else:
+                await logger.warning(f"[{step.name}] No elements found on the page")
 
         return current_urls

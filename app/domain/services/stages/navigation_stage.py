@@ -35,10 +35,6 @@ class NavigationStage(ScraperStage):
                 ExtractionEngine
             )
 
-            await logger.info(
-                f"[NavigationStage] {len(links)} links found in {entry}"
-            )
-
             urls.extend(links)
 
         context.category_urls = urls

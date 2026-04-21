@@ -18,7 +18,7 @@ class GenericScraper:
             [
                 NavigationStage(),
                 ExtractionStage(),
-                DedupStage()
+                #DedupStage()
             ]
         )
 

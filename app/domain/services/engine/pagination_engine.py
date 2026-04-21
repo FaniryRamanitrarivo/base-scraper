@@ -9,7 +9,7 @@ class PaginationEngine:
         """
         pagination_param = config.pattern.replace("<PNum>", "")
         # Ensure we don't have trailing slashes or existing query strings interfering
-        clean_base = base_url.split('?')[0].split(pagination_param)[0].rstrip('/')
+        clean_base = base_url.split(pagination_param)[0].rstrip('/')
         
         # Replace the placeholder in the pattern (e.g., "/page/<PNum>")
         page_segment = config.pattern.replace("<PNum>", str(current_page))

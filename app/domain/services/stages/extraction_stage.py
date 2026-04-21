@@ -45,9 +45,12 @@ class ExtractionStage(ScraperStage):
                     base_url=page_url
                 )
 
-                if products: 
+                if len(products) > 0: 
                     await logger.success(f"Found {len(products)} links on this page.", products)
                     results.extend(products)
+                else:
+                    await logger.warning(f"No links found on the page : ", page_url)
+                    break
                 
                 # 3. Pagination Logic - Check if we should find the NEXT page
                 if pagination_cfg and pages_scraped_count < pagination_cfg.max_pages:

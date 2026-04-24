@@ -141,6 +141,18 @@ Définit comment extraire les URLs finales.
 }
 ```
 
+### HREF REDIRECTION
+```json
+{
+  "pagination": {
+    "type": "href_redirection",
+    "selector": "[class~='pagination'] a[class*='next']",
+    "attribute": "href",
+    "max_pages": 3
+  }
+}
+```
+
 ## 8️⃣ Run Identification
 ```json
 {

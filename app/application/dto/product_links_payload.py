@@ -83,12 +83,14 @@ class IncrementPagination(BaseModel):
 class NextButtonPagination(BaseModel):
     type: Literal["next_button"]
     selector: str
+    delay_seconds: float = 1.5
     max_pages: int = 1
 
 
 class InfiniteScrollPagination(BaseModel):
     type: Literal["infinite_scroll"]
     scroll_delay: int = 1000
+    delay_seconds: float = 1.5
     max_scrolls: int = 5
 
 

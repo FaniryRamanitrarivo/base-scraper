@@ -87,7 +87,7 @@ class SeleniumBrowser(Browser):
         driver = await loop.run_in_executor(None, build)
         return cls(driver)
 
-    async def get(self, url: str):
+    async def open(self, url: str):
         """
         Navigue vers une URL avec une tolérance aux échecs réseau.
         """
@@ -111,14 +111,47 @@ class SeleniumBrowser(Browser):
             print(f"Erreur lors du query_all ({selector}): {e}")
             return []
 
-    async def get_attribute(self, element, attribute: str):
+    async def get_element(self, selector: str):
         loop = asyncio.get_running_loop()
         try:
-            return await loop.run_in_executor(
-                None,
-                lambda: element.get_attribute(attribute),
-            )
-        except Exception:
+            def fetch_val():
+                # Step 1: Find the element using the CSS selector
+                element = self.driver.find_element(By.CSS_SELECTOR, selector)
+                # Step 2: Grab the attribute
+                return element
+
+            return await loop.run_in_executor(None, fetch_val)
+        except Exception as e:
+            # Expressing the error: clarifies if it's a 'Selector Not Found' or a 'Driver Issue'
+            print(f"⚠️ Error getting element with selector '{selector}' : {e}")
+            return None
+        
+    async def click(self, selector: str) -> bool:
+        loop = asyncio.get_running_loop()
+        try:
+            def do_click():
+                element = self.driver.find_element(By.CSS_SELECTOR, selector)
+                element.click()
+                return True
+
+            return await loop.run_in_executor(None, do_click)
+        except Exception as e:
+            print(f"⚠️ Error clicking element '{selector}': {e}")
+            return False
+
+    async def get_attribute(self, selector: str, attribute: str):
+        loop = asyncio.get_running_loop()
+        try:
+            def fetch_val():
+                # Step 1: Find the element using the CSS selector
+                element = self.driver.find_element(By.CSS_SELECTOR, selector)
+                # Step 2: Grab the attribute
+                return element.get_attribute(attribute)
+
+            return await loop.run_in_executor(None, fetch_val)
+        except Exception as e:
+            # Expressing the error: clarifies if it's a 'Selector Not Found' or a 'Driver Issue'
+            print(f"⚠️ Error getting attribute '{attribute}' for selector '{selector}': {e}")
             return None
 
     async def get_text(self, element):
@@ -128,7 +161,8 @@ class SeleniumBrowser(Browser):
                 None,
                 lambda: element.text,
             )
-        except Exception:
+        except Exception as e:
+            print(f"⚠️ Error retrieving text from element: {e}")
             return ""
 
     async def current_url(self) -> str:
@@ -145,7 +179,8 @@ class SeleniumBrowser(Browser):
                 None,
                 lambda: self.driver.page_source,
             )
-        except Exception:
+        except Exception as e:
+            print(f"❌ Failed to get page source: {e}")
             return ""
 
     async def close(self):

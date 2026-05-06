@@ -5,11 +5,19 @@ from typing import List
 class Browser(ABC):
 
     @abstractmethod
-    async def get(self, url: str):
+    async def open(self, url: str):
         pass
 
     @abstractmethod
     async def query_all(self, selector: str) -> List:
+        pass
+
+    @abstractmethod
+    async def get_element(self, selector: str):
+        pass
+
+    @abstractmethod
+    async def click(self, selector: str):
         pass
 
     @abstractmethod

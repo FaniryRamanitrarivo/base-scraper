@@ -20,7 +20,7 @@ class NavigationEngine:
 
                     await logger.info(f"Entering page : {url}")
 
-                    await browser.get(url)
+                    await browser.open(url)
 
                     links = await extractor.extract(
                         browser,

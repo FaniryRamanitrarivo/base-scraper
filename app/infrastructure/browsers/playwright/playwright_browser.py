@@ -16,7 +16,7 @@ class PlaywrightBrowser(Browser):
         page.set_default_timeout(timeout)
         return cls(browser, page)
 
-    async def get(self, url: str):
+    async def open(self, url: str):
         await self.page.goto(str(url))
 
     async def query_all(self, selector: str) -> List:
@@ -26,6 +26,12 @@ class PlaywrightBrowser(Browser):
     async def get_attribute(self, element, attribute: str):
         # 'element' ici est un ElementHandle fourni par query_all
         return await element.get_attribute(attribute)
+
+    async def get_element(self, selector: str):
+        pass
+
+    async def click(self, selector: str):
+        pass
 
     async def get_text(self, element):
         # 'element' ici est un ElementHandle

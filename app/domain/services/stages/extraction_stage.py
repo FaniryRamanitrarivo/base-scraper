@@ -1,79 +1,93 @@
-from typing import Any
+import asyncio
+from typing import Any, Set, List
+
+# Imports de ton architecture
 from app.domain.services.pipeline.stage import ScraperStage
 from app.domain.services.engine.extraction_engine import ExtractionEngine
-from app.domain.services.engine.pagination_engine import PaginationEngine
+# On importe le moteur ET l'Enum pour la comparaison à la fin
+from app.domain.services.engine.pagination_engine import PaginationEngine, PaginationType
 
 class ExtractionStage(ScraperStage):
 
-    async def run(self, context: Any):
-        # 1. Correct the reference to the pagination config
+    async def run(self, context: Any) -> None:
         payload = context.payload
         logger = context.logger
         pagination_cfg = getattr(payload, 'pagination', None) 
+        
+        # Sécurisation des valeurs par défaut
+        max_pages = getattr(pagination_cfg, 'max_pages', 1) if pagination_cfg else 1
+        wait_delay = getattr(pagination_cfg, 'delay_seconds', 3.0) if pagination_cfg else 3.0
 
-        await logger.info("[ExtractionStage] starting extraction product links")
+        await logger.info(f"[ExtractionStage] Démarrage. Limite: {max_pages} pages/catégorie.")
         
-        results = []
-        urls_to_process = list(getattr(context, 'category_urls', []))
-        processed_urls = set()
+        results: Set[Any] = set()
+        category_urls: List[str] = list(getattr(context, 'category_urls', []))
         
-        # 2. Track page progress locally
-        # We use a counter to ensure we don't exceed max_pages
-        pages_scraped_count = 1 
-        
-        index = 0
-        while index < len(urls_to_process):
-            page_url = urls_to_process[index]
-            index += 1
-
-            if page_url in processed_urls:
-                continue
-            
-            
+        for start_url in category_urls:
             try:
-                await logger.info(f"Entering page : {page_url}")
-
-                await context.browser.get(page_url)
-                processed_urls.add(page_url)
-                
-                await logger.info(f"Start extraction on the page: {page_url}")
-
-                # Extract links from current page
-                products = await ExtractionEngine.extract(
-                    context.browser,
-                    payload.product_links,
-                    base_url=page_url
+                await self._process_category(
+                    context, start_url, max_pages, wait_delay, results
                 )
-
-                if len(products) > 0: 
-                    await logger.success(f"Found {len(products)} links on this page.", products)
-                    results.extend(products)
-                else:
-                    await logger.warning(f"No links found on the page : ", page_url)
-                    break
-                
-                # 3. Pagination Logic - Check if we should find the NEXT page
-                if pagination_cfg and pages_scraped_count < pagination_cfg.max_pages:
-                    await logger.info(f"Paginating: {pages_scraped_count}/{pagination_cfg.max_pages}")
-                    
-                    # The engine should use the current context/url to find or build the next link
-                    next_page_url = await PaginationEngine.paginate(context, page_url)
-                    
-                    if next_page_url and next_page_url not in processed_urls:
-                        await logger.info(f"Added to queue: {next_page_url}")
-                        urls_to_process.append(next_page_url)
-                        pages_scraped_count += 1 # Increment only when a new page is queued
-                else:
-                    if pagination_cfg:
-                        await logger.info(f"Pagination stopped: reached limit or no config.")
-
             except Exception as e:
-                await logger.error(f"Error on {page_url}: {str(e)}")
+                await logger.error(f"Erreur critique sur la catégorie {start_url}: {str(e)}")
 
-        context.results = list(set(results))
+        context.results = list(results)
+        await logger.info(f"[ExtractionStage] Terminé. {len(context.results)} produits uniques trouvés.")
 
+    async def _process_category(
+        self, 
+        context: Any, 
+        start_url: str, 
+        max_pages: int, 
+        wait_delay: float, 
+        global_results: Set[Any]
+    ) -> None:
+        """
+        Traite une catégorie spécifique et gère sa pagination.
+        """
+        logger = context.logger
+        browser = context.browser
+        payload = context.payload
+        current_url = start_url
+        
+        await logger.info(f"Ouverture de la catégorie : {current_url}")
+        await browser.open(current_url)
 
+        for page_index in range(max_pages):
+            await logger.info(f"Extraction Page {page_index + 1}/{max_pages} [URL: {current_url}]")
 
+            # 1. Extraction
+            products = await ExtractionEngine.extract(
+                browser,
+                payload.product_links,
+                base_url=current_url
+            )
 
+            if not products:
+                await logger.warning(f"Aucun lien trouvé sur la page {page_index + 1}.")
+                break
+            
+            await logger.success(f"{len(products)} produits trouvés.", products)
+            global_results.update(products)
 
+            if page_index >= max_pages - 1:
+                break
 
+            # 2. Appel au PaginationEngine
+            # Note: On passe page_index + 1 car l'index commence à 0
+            pagination_result = await PaginationEngine.paginate(context, current_url, page_index + 1)
+            
+            if not pagination_result or not pagination_result.success:
+                await logger.info("Plus aucune page suivante trouvée.")
+                break
+
+            # 3. Actions basées sur le type de pagination
+            if pagination_result.type == PaginationType.NAVIGATION:
+                next_url = pagination_result.next_url
+                await logger.info(f"Navigation vers: {next_url}")
+                await browser.open(next_url)
+                current_url = next_url 
+
+            elif pagination_result.type == PaginationType.IN_PLACE:
+                await logger.info(f"Pagination locale effectuée. Attente de {wait_delay}s...")
+                await asyncio.sleep(wait_delay)

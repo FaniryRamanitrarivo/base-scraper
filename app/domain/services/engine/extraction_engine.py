@@ -14,7 +14,7 @@ class ExtractionEngine:
             if config.attribute == "textContent":
                 value = await browser.get_text(el)
             else:
-                value = await browser.get_attribute(el, config.attribute)
+                value = el.get_attribute(config.attribute)
 
             if not value:
                 continue

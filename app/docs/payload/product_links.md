@@ -125,6 +125,7 @@ Définit comment extraire les URLs finales.
   "pagination": {
     "type": "next_button",
     "selector": ".next",
+    "delay_seconds": 3,
     "max_pages": 20
   }
 }
@@ -136,6 +137,7 @@ Définit comment extraire les URLs finales.
   "pagination": {
     "type": "infinite_scroll",
     "scroll_delay": 1000,
+    "delay_seconds": 3,
     "max_scrolls": 10
   }
 }
@@ -218,13 +220,12 @@ Toutes les URLs collectées seront liées à ce `run_id`.
     "absolute": true
   },
   "pagination": {
-    "type": "increment",
-    "pattern": "/page/<PNum>",
-    "start": 1,
+    "type": "next_button",
+    "selector": "div[class='mt-8 mb-4 flex justify-center flex-wrap gap-2'] button:last-of-type",
+    "delay_seconds": 3,
     "max_pages": 3
   }
-}
-```
+}```
 
 ### 🧠 Philosophie
 
